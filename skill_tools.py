@@ -1,3 +1,14 @@
+#Some useful tools for skill assessment
+#This code is part of the EU MSCA postdoctoral fellowships project SD4SP 
+# (Stratospheric Dynamics for Seasonal Prediction), GA: 101065820 
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+from scipy import stats as spstats
+import gc
+import matplotlib as mpl
 def bilinear_interp(data, src_lat, src_lon, dst_lat, dst_lon):
     """
     Bilinear interpolation from src → dst grid.
@@ -30,10 +41,6 @@ def bilinear_interp(data, src_lat, src_lon, dst_lat, dst_lon):
             )
     return out
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# TIME INDEX HELPERS
-# ──────────────────────────────────────────────────────────────────────────────
 def era5_flat_index(years, era5_start_year, lead):
     """
     ERA5 flat time index for a given forecast lead.
