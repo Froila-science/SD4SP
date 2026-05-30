@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding: utf-8
 #Some useful tools for skill assessment
 #This code is part of the EU MSCA postdoctoral fellowships project SD4SP 
 # (Stratospheric Dynamics for Seasonal Prediction), GA: 101065820 
