@@ -549,7 +549,7 @@ def plot_propagation(date_sel,composite=True):
     fig : matplotlib.figure.Figure  
     
     '''
-    root =Dataset('src/NAM_ERA5_std_new.nc')
+    root =Dataset('NAM_ERA5_std_new.nc')
 
     year0=1950
     iyear = year0-1959
@@ -736,7 +736,7 @@ def plot_impacts(st1,date_sel,var,composite=True):
     fig : matplotlib.figure.Figure  
     
     '''    
-    root    = Dataset('src/nl_lr_geopot1000_day_ERA5_1950-2021.nc')
+    root    = Dataset('nl_lr_geopot1000_day_ERA5_1950-2021.nc')
     st1 = date2num(date_sel,units ="days since 1950-01-01",calendar ='noleap') 
     dat     = np.squeeze(root.variables['geopot'][:]) / 9.81
     dat = np.squeeze(dat)
