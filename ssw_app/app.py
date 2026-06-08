@@ -15,7 +15,7 @@ st.set_page_config(
 @st.cache_data
 def load_numpy_data():
     # Ensure the file path is correct for your Hugging Face Space
-    with Dataset('src/nl_zm_ua_day_ERA5_1950-2021.nc', mode='r') as nc:
+    with Dataset('nl_zm_ua10_day_ERA5_1950-2021.nc', mode='r') as nc:
         # Use [:] to load data into memory as numpy arrays
         u_wind = nc.variables['ua'][:] 
         levels = nc.variables['level'][:]
