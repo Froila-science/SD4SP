@@ -15,7 +15,7 @@ st.set_page_config(
 @st.cache_data
 def load_numpy_data():
     # Ensure the file path is correct for your Hugging Face Space
-    with Dataset('nl_zm_ua10_day_ERA5_1950-2021.nc', mode='r') as nc:
+    with Dataset('ssw_app/nl_zm_ua10_day_ERA5_1950-2021.nc', mode='r') as nc:
         # Use [:] to load data into memory as numpy arrays
         u_wind = nc.variables['ua'][:] 
         levels = nc.variables['level'][:]
@@ -61,7 +61,7 @@ if run_detection:
     with st.spinner("Detecting SSW events..."):
         # Ensure 'root' is defined or passed correctly inside detect_ese
         year0 = 1950
-        root = Dataset("src/nl_zm_ua_day_ERA5_1950-2021.nc") # Or your specific path
+        root = Dataset("ssw_app/nl_zm_ua_day_ERA5_1950-2021.nc") # Or your specific path
         
         # Calling your custom function
         ssw212, ssw365, sfw212, sfw365, nyr, perc = detect_ese(root, "_"+definition, year0)
