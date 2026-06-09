@@ -15,7 +15,21 @@ st.set_page_config(
 # --- DATA LOADING ---
 @st.cache_data
 def load_numpy_data():
-    with Dataset('nl_zm_ua10_day_ERA5_1950-2021.nc', mode='r') as nc:
+
+import os
+import streamlit as st
+from netCDF4 import Dataset
+
+def load_numpy_data():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    file_path = os.path.join(current_dir, 'nl_zm_ua10_day_ERA5_1950-2021.nc')
+    
+    if not os.path.exists(file_path):
+        st.error(f"File not found in: {file_path}")
+        return None
+
+    with Dataset(file_path, mode='r') as nc:
         # Use [:] to load data into memory as numpy arrays
         u_wind = nc.variables['ua'][:] 
         levels = nc.variables['level'][:]
@@ -34,18 +48,6 @@ def load_numpy_data():
 # --- INTERFACE ---
 st.title("🌪️ Stratospheric Sudden Warming (SSW) Tool")
 st.markdown("Developed for the **SD4SP Project** | Analyzing Stratosphere-Troposphere Coupling")
-#    ------------------------
-st.write("### 🔍 Diagnóstico de archivos:")
-st.write(f"Directorio actual: {os.getcwd()}")
-st.write(f"Contenido de la carpeta actual: {os.listdir('.')}")
-
-if os.path.exists('ssw_app'):
-    st.write(f"Contenido de ssw_app/: {os.listdir('ssw_app')}")
-else:
-    st.write("❌ No encuentro la carpeta 'ssw_app'")
-#    ------------------
-
-
 
 # Load data once
 data = load_numpy_data()
