@@ -16,6 +16,7 @@ from cartopy.util import add_cyclic_point
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import os
+import streamlit as st
 
 def interp25(u10, lat):
     '''
@@ -559,14 +560,14 @@ def plot_propagation(date_sel, composite=True):
             
         st1 = date2num(dt_objs[mask], units="days since 1960-01-01", calendar='noleap')
         tit = 'Composite'
+
     else:
         dt_obj = pd.to_datetime(date_sel)
         yy1 = dt_obj.year
         
         if yy1 < 1960:
-            st.warning('Data not available before 1960')
-            return None
-        
+            st.warning(f'⚠️ No data available for {yy1}. Please, select events after 1960.')
+            return None 
         st1 = date2num([dt_obj], units="days since 1960-01-01", calendar='noleap')
         tit = dt_obj.strftime("%d %b %Y")
 
