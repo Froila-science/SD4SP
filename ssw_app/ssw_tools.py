@@ -565,8 +565,8 @@ def plot_propagation(date_sel,composite=True):
         mask = np.array([((f.year > 1960) & (f.year < 2022)) for f in date_sel])
         date_sel = np.array(date_sel)
         mask = np.array(mask).astype(bool)  # Forzamos a que sea booleano
-
-        st1 = date2num(date_sel,units ="days since 1950-01-01",calendar ='noleap') #SSWs arranged as nam data
+        dt_obj = pd.to_datetime(date_sel)
+        st1 = date2num(dt_obj,units ="days since 1950-01-01",calendar ='noleap') #SSWs arranged as nam data
         st1 = st1[mask]
         date_sel  = num2date(st1,units ="days since 1950-01-01",calendar ='noleap') #SSWs arranged as nam data
         st1 = date2num(date_sel,units ="days since 1960-01-01",calendar ='noleap') #SSWs arranged as nam data
