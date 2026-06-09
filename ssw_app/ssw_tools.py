@@ -537,45 +537,60 @@ def plt_prop_comp(tit, var, ndays, lev, year0, save=False):
     
     return fig
 
+import pandas as pd
+import numpy as np
+import os
+import streamlit as st
+from netCDF4 import Dataset, date2num
+import cftime
+
 def plot_propagation(date_sel, composite=True):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'NAM_ERA5_std_new.nc')
     
     if not os.path.exists(file_path):
-        st.error(f"No se encuentra el archivo: {file_path}")
+        st.error(f"No file found: {file_path}")
         return None
 
     root = Dataset(file_path)
     lev = root.variables['lev'][:]
     nz = len(lev)
+    
     dat = np.squeeze(root.variables['nam'][:]) 
     
-    try:
-        if composite:
-            dt_objs = pd.to_datetime(date_sel)
-            cf_dates = [cftime.datetime(d.year, d.month, d.day, calendar='noleap') for d in dt_objs]
-            st1 = []
-            for d in cf_dates:
-                if 1960 <= d.year <= 2021:
-                    val = date2num(d, units="days since 1959-09-01", calendar='noleap')
-                    st1.append(val)
-            st1 = np.array(st1)
-            tit = 'Composite'
-        else:
-            d = pd.to_datetime(date_sel)
-            if d.year < 1960:
-                st.warning(f"⚠️ No data available for {d.year}. Select events after 1960.")
-                root.close()
-                return None
-            
-            cf_date = cftime.datetime(d.year, d.month, d.day, calendar='noleap')
-            st1 = np.array([date2num(cf_date, units="days since 1959-09-01", calendar='noleap')])
-            tit = d.strftime("%d %b %Y")
+    st1 = []
+    
+    if isinstance(date_sel, str):
+        dates_to_process = [date_sel]
+    else:
+        dates_to_process = date_sel
 
-    except Exception as e:
-        st.error(f"Error procesando fechas: {e}")
+    for d_str in dates_to_process:
+        if d_str == "Full Composite":
+            continue
+        try:
+            pdt = pd.to_datetime(d_str)
+            
+            if pdt.year < 1960:
+                continue
+                
+            cf_date = cftime.datetime(int(pdt.year), int(pdt.month), int(pdt.day), calendar='noleap')
+            
+            val = date2num(cf_date, units="days since 1959-09-01", calendar='noleap')
+            st1.append(int(val))
+        except:
+            continue 
+    st1 = np.array(st1)
+
+    if len(st1) == 0:
+        st.warning("⚠️ No events should be later than 1960.")
         root.close()
         return None
+
+    if composite:
+        tit = 'Composite'
+    else:
+        tit = pd.to_datetime(dates_to_process[0]).strftime("%d %b %Y")
 
     iz10 = np.argmin(abs(lev - 10))
     nt = dat.shape[0]
@@ -584,12 +599,10 @@ def plot_propagation(date_sel, composite=True):
     nst = len(st1)
     
     if nst == 0:
-        st.warning("No events found.")
         root.close()
         return None
 
     comp = np.zeros((nst, 180, nz))
-
     for c in range(nst):
         pos = int(st1[c])
         if pos - 90 >= 0 and pos + 90 <= nt:
