@@ -15,7 +15,7 @@ import matplotlib.path as mpath
 from cartopy.util import add_cyclic_point
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
-
+import os
 
 def interp25(u10, lat):
     '''
