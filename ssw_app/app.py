@@ -124,6 +124,14 @@ if 'ssw_dates' in st.session_state:
                 with st.spinner("Calculating vertical cross-section..."):
                     # Pass 'data' dictionary so function has access to numpy arrays
                     print("bef",event_input)
+                    
+                    if event_input == "Full Composite":
+                        is_composite = True
+                        input_data = st.session_state['ssw_dates']
+                    else:
+                        is_composite = False
+                        input_data = event_input 
+                                       
                     fig1 = plot_propagation(event_input, composite=is_composite)
                     if fig1 is not None:
                         st.pyplot(fig1)
