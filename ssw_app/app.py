@@ -69,7 +69,12 @@ if run_detection:
     with st.spinner("Detecting SSW events..."):
         # Ensure 'root' is defined or passed correctly inside detect_ese
         year0 = 1950
-        root = Dataset("nl_zm_ua_day_ERA5_1950-2021.nc") # Or your specific path
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        file_path = os.path.join(current_dir, 'nl_zm_ua10_day_ERA5_1950-2021.nc')
+        if not os.path.exists(file_path):
+            st.error(f"File not found in: {file_path}")
+            return None
+        root = Dataset(file_path) # Or your specific path
         
         # Calling your custom function
         ssw212, ssw365, sfw212, sfw365, nyr, perc = detect_ese(root, "_"+definition, year0)
