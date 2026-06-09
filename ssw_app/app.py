@@ -125,8 +125,11 @@ if 'ssw_dates' in st.session_state:
                     # Pass 'data' dictionary so function has access to numpy arrays
                     print("bef",event_input)
                     fig1 = plot_propagation(event_input, composite=is_composite)
-                    st.pyplot(fig1)
-                    
+                    if fig1 is not None:
+                        st.pyplot(fig1)
+                    else:
+                        st.info("Selecciona una fecha válida del menú para generar el gráfico.")
+                                        
             with tab2:
                 st.subheader(f"Surface Anomaly Map: {selection}")
                 with st.spinner("Calculating surface impacts..."):
