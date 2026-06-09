@@ -549,7 +549,7 @@ def plot_propagation(date_sel,composite=True):
     fig : matplotlib.figure.Figure  
     
     '''
-    root =Dataset('ssw_app/NAM_ERA5_std_new.nc')
+    root =Dataset('NAM_ERA5_std_new.nc')
 
     year0=1950
     iyear = year0-1959
