@@ -8,7 +8,6 @@ import os
 # --- PAGE CONFIG ---
 st.set_page_config(
     page_title="SD4SP: SSW Diagnostic Tool",
-    page_icon="🌪️",
     layout="wide"
 )
 
@@ -83,7 +82,7 @@ if run_detection:
             raw_dates = num2date(ssw365, units=f"days since {year0}-01-01", calendar='noleap')
             
             # Store as standard python datetimes in session state
-            st.session_state['ssw_dates'] = [pd.to_datetime(str(d)) for d in raw_dates]
+            st.session_state['ssw_dates'] = [d.strftime('%Y-%m-%d') for d in raw_dates]
 
 # --- RESULTS & PLOTTING ---
 if 'ssw_dates' in st.session_state:
@@ -93,7 +92,7 @@ if 'ssw_dates' in st.session_state:
         col1, col2 = st.columns([1, 2.5])
         
         with col1:
-            st.subheader("📅 Event Selection")
+            st.subheader("Event Selection")
             
             map_options = ["Full Composite"] + [d.strftime('%Y-%m-%d') for d in dates]
             
