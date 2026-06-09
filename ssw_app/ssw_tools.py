@@ -545,21 +545,28 @@ from netCDF4 import Dataset, date2num
 import cftime
 
 def plot_propagation(date_sel, composite=True):
+    import pandas as pd
+    import numpy as np
+    import os
+    import streamlit as st
+    from netCDF4 import Dataset, date2num
+    import cftime
+
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'NAM_ERA5_std_new.nc')
     
     if not os.path.exists(file_path):
-        st.error(f"No file found: {file_path}")
+        st.error(f"File not found: {file_path}")
         return None
 
     root = Dataset(file_path)
     lev = root.variables['lev'][:]
     nz = len(lev)
-    
     dat = np.squeeze(root.variables['nam'][:]) 
     
     st1 = []
     
+    # Ensure date_sel is a list even if it's a single string
     if isinstance(date_sel, str):
         dates_to_process = [date_sel]
     else:
@@ -569,32 +576,33 @@ def plot_propagation(date_sel, composite=True):
         if d_str == "Full Composite":
             continue
         try:
+            # Convert to pandas datetime
             pdt = pd.to_datetime(d_str)
-            
             if pdt.year < 1960:
                 continue
-                
+            
+            # Create cftime object (must use basic python int())
             cf_date = cftime.datetime(int(pdt.year), int(pdt.month), int(pdt.day), calendar='noleap')
             
+            # Calculate index based on data start (Sept 1 1959)
             val = date2num(cf_date, units="days since 1959-09-01", calendar='noleap')
             st1.append(int(val))
         except:
-            continue 
+            continue
+
     st1 = np.array(st1)
 
     if len(st1) == 0:
-        st.warning("⚠️ No events should be later than 1960.")
         root.close()
         return None
 
+    # Define title
     if composite:
         tit = 'Composite'
     else:
         tit = pd.to_datetime(dates_to_process[0]).strftime("%d %b %Y")
 
-    iz10 = np.argmin(abs(lev - 10))
     nt = dat.shape[0]
-    
     st1 = st1[st1 < (nt - 90)]
     nst = len(st1)
     
@@ -602,6 +610,7 @@ def plot_propagation(date_sel, composite=True):
         root.close()
         return None
 
+    # Matrix calculation
     comp = np.zeros((nst, 180, nz))
     for c in range(nst):
         pos = int(st1[c])
@@ -610,7 +619,9 @@ def plot_propagation(date_sel, composite=True):
 
     wintplot = np.nanmean(comp, axis=0)
     
-    fig = plt_prop_comp(tit, wintplot, 180, lev, save=False)
+    # FINAL PLOT CALL (Fixed arguments)
+    year0 = 1950 
+    fig = plt_prop_comp(tit, wintplot, 180, lev, year0, save=False)
     
     root.close()
     return fig
