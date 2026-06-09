@@ -549,8 +549,10 @@ def plot_propagation(date_sel,composite=True):
     fig : matplotlib.figure.Figure  
     
     '''
-    root =Dataset('NAM_ERA5_std_new.nc')
-
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(current_dir, 'NAM_ERA5_std_new.nc')
+    
+    root =Dataset('file_path')
     year0=1950
     iyear = year0-1959
     if iyear < 0:
