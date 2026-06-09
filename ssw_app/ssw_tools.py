@@ -17,6 +17,9 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 import os
 import streamlit as st
+import pandas as pd
+import cftime
+
 
 def interp25(u10, lat):
     '''
@@ -533,67 +536,70 @@ def plt_prop_comp(tit, var, ndays, lev, year0, save=False):
         print(f'Figura guardada como: {fname}')
     
     return fig
-def plot_propagation(date_sel, composite=True):
-    import pandas as pd
-    import numpy as np
-    import os
-    from netCDF4 import Dataset, date2num, num2date
 
+def plot_propagation(date_sel, composite=True):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'NAM_ERA5_std_new.nc')
     
+    if not os.path.exists(file_path):
+        st.error(f"No se encuentra el archivo: {file_path}")
+        return None
+
     root = Dataset(file_path)
-    year0 = 1950
-    iyear = 1959 - year0 
-    dat = np.squeeze(root.variables['nam'][(iyear*365)+122::]) 
     lev = root.variables['lev'][:]
     nz = len(lev)
-
-    if composite:
-        dt_objs = pd.to_datetime(date_sel)
-        
-        mask = np.array([(d.year >= 1960 and d.year < 2022) for d in dt_objs])
-        
-        if not any(mask):
-            print("No events in 1960-2021")
-            return None
+    dat = np.squeeze(root.variables['nam'][:]) 
+    
+    try:
+        if composite:
+            dt_objs = pd.to_datetime(date_sel)
+            cf_dates = [cftime.datetime(d.year, d.month, d.day, calendar='noleap') for d in dt_objs]
+            st1 = []
+            for d in cf_dates:
+                if 1960 <= d.year <= 2021:
+                    val = date2num(d, units="days since 1959-09-01", calendar='noleap')
+                    st1.append(val)
+            st1 = np.array(st1)
+            tit = 'Composite'
+        else:
+            d = pd.to_datetime(date_sel)
+            if d.year < 1960:
+                st.warning(f"⚠️ No data available for {d.year}. Select events after 1960.")
+                root.close()
+                return None
             
-        st1 = date2num(dt_objs[mask], units="days since 1960-01-01", calendar='noleap')
-        tit = 'Composite'
+            cf_date = cftime.datetime(d.year, d.month, d.day, calendar='noleap')
+            st1 = np.array([date2num(cf_date, units="days since 1959-09-01", calendar='noleap')])
+            tit = d.strftime("%d %b %Y")
 
-    else:
-        dt_obj = pd.to_datetime(date_sel)
-        yy1 = dt_obj.year
-        
-        if yy1 < 1960:
-            st.warning(f'⚠️ No data available for {yy1}. Please, select events after 1960.')
-            return None 
-        st1 = date2num([dt_obj], units="days since 1960-01-01", calendar='noleap')
-        tit = dt_obj.strftime("%d %b %Y")
+    except Exception as e:
+        st.error(f"Error procesando fechas: {e}")
+        root.close()
+        return None
 
-    iz10 = np.argmin(abs(lev-10))
+    iz10 = np.argmin(abs(lev - 10))
     nt = dat.shape[0]
     
-    res = np.where(st1 < nt - 90)[0]
-    st1 = st1[res]
-    
+    st1 = st1[st1 < (nt - 90)]
     nst = len(st1)
+    
     if nst == 0:
+        st.warning("No events found.")
+        root.close()
         return None
 
     comp = np.zeros((nst, 180, nz))
 
     for c in range(nst):
         pos = int(st1[c])
-        if pos-90 < 0 or pos+90 > nt:
-            continue
-            
-        comp[c,:,:] = dat[pos-90:pos+90, :]
+        if pos - 90 >= 0 and pos + 90 <= nt:
+            comp[c, :, :] = dat[pos - 90 : pos + 90, :]
 
     wintplot = np.nanmean(comp, axis=0)
     
-    fig = plt_prop_comp(tit, wintplot, 180, lev, year0, save=False)
-    root.close() 
+    fig = plt_prop_comp(tit, wintplot, 180, lev, save=False)
+    
+    root.close()
     return fig
 def plt_stereo(tit, var, sig, lat, lon, clevs, colormap, colbar, un):
     """
