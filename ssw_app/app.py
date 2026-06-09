@@ -39,7 +39,7 @@ def load_numpy_data():
     }
 
 # --- INTERFACE ---
-st.title("🌪️ Stratospheric Sudden Warming (SSW) Tool")
+st.title("Stratospheric Sudden Warming (SSW) Tool")
 st.markdown("Developed for the **SD4SP Project** | Analyzing Stratosphere-Troposphere Coupling")
 
 # Load data once
@@ -113,10 +113,10 @@ if 'ssw_dates' in st.session_state:
             
             # Setup inputs for functions
             if selection == "Full Composite":
-                event_input = dates
+                event_input = pd.to_datetime(dates)
                 is_composite = True
             else:
-                event_input = [pd.to_datetime(selection)]
+                event_input = [pd.to_datetime(selection)] 
                 is_composite = False
 
             with tab1:
