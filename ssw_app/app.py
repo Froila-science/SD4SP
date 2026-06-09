@@ -95,22 +95,23 @@ if 'ssw_dates' in st.session_state:
         with col2:
             tab1, tab2 = st.tabs(["Downward Propagation", "Surface Impacts"])
 
-            # Logic to determine if plotting a single date or a composite
+            # Correct data routing
             if selection == "Full Composite":
                 input_data = dates
                 is_composite = True
             else:
-                input_data = selection # String format: "1 Jan 1958"
+                input_data = selection  # Passing the string "1 Jan 1958"
                 is_composite = False
 
             with tab1:
                 st.subheader(f"Vertical Propagation: {selection}")
                 with st.spinner("Calculating vertical cross-section..."):
+                    # Call the function with the correct arguments
                     fig1 = plot_propagation(input_data, composite=is_composite)
                     if fig1 is not None:
                         st.pyplot(fig1)
                     else:
-                        st.info("No data available to display for this selection.")
+                        st.info("No data available for the selected range (1960-2021).")
                                             
             with tab2:
                 st.subheader(f"Surface Anomaly Map: {selection}")
