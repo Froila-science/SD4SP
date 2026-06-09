@@ -73,17 +73,17 @@ if run_detection:
         file_path = os.path.join(current_dir, 'nl_zm_ua10_day_ERA5_1950-2021.nc')
         if not os.path.exists(file_path):
             st.error(f"File not found in: {file_path}")
-            return None
-        root = Dataset(file_path) # Or your specific path
-        
-        # Calling your custom function
-        ssw212, ssw365, sfw212, sfw365, nyr, perc = detect_ese(root, "_"+definition, year0)
-        
-        # Convert numeric dates to datetime objects
-        raw_dates = num2date(ssw365, units=f"days since {year0}-01-01", calendar='noleap')
-        
-        # Store as standard python datetimes in session state
-        st.session_state['ssw_dates'] = [pd.to_datetime(str(d)) for d in raw_dates]
+        else:
+            root = Dataset(file_path) # Or your specific path
+            
+            # Calling your custom function
+            ssw212, ssw365, sfw212, sfw365, nyr, perc = detect_ese(root, "_"+definition, year0)
+            
+            # Convert numeric dates to datetime objects
+            raw_dates = num2date(ssw365, units=f"days since {year0}-01-01", calendar='noleap')
+            
+            # Store as standard python datetimes in session state
+            st.session_state['ssw_dates'] = [pd.to_datetime(str(d)) for d in raw_dates]
 
 # --- RESULTS & PLOTTING ---
 if 'ssw_dates' in st.session_state:
