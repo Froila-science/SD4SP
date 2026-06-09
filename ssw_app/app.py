@@ -82,9 +82,10 @@ if run_detection:
             raw_dates = num2date(ssw365, units=f"days since {year0}-01-01", calendar='noleap')
             
             # Store as standard python datetimes in session state
-            st.session_state['ssw_dates'] = [d.strftime('%Y-%m-%d') for d in raw_dates]
-            
+            st.session_state['ssw_dates'] = [pd.to_datetime(str(d)).strftime('%-d %b %Y') for d in raw_dates]
+                     
 
+            
 # --- RESULTS & PLOTTING ---
 if 'ssw_dates' in st.session_state:
     dates = st.session_state['ssw_dates']
