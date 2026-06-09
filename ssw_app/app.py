@@ -33,7 +33,7 @@ def load_numpy_data():
 # --- INTERFACE ---
 st.title("🌪️ Stratospheric Sudden Warming (SSW) Tool")
 st.markdown("Developed for the **SD4SP Project** | Analyzing Stratosphere-Troposphere Coupling")
-    ------------------------
+#    ------------------------
 st.write("### 🔍 Diagnóstico de archivos:")
 st.write(f"Directorio actual: {os.getcwd()}")
 st.write(f"Contenido de la carpeta actual: {os.listdir('.')}")
@@ -42,7 +42,7 @@ if os.path.exists('ssw_app'):
     st.write(f"Contenido de ssw_app/: {os.listdir('ssw_app')}")
 else:
     st.write("❌ No encuentro la carpeta 'ssw_app'")
-    ------------------
+#    ------------------
 
 
 
