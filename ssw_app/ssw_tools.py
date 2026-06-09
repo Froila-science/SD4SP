@@ -571,7 +571,7 @@ def plot_propagation(date_sel,composite=True):
         date_sel  = num2date(st1,units ="days since 1950-01-01",calendar ='noleap') #SSWs arranged as nam data
         st1 = date2num(date_sel,units ="days since 1960-01-01",calendar ='noleap') #SSWs arranged as nam data
     else:
-        yy1 = int(date_sel[1:5])
+        yy1 = int(date_sel.split()[-1])
         if yy1 <1960:
             print('Not available data to plot, please select events after year 1960')
             exit
