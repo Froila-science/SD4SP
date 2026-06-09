@@ -15,12 +15,6 @@ st.set_page_config(
 # --- DATA LOADING ---
 @st.cache_data
 def load_numpy_data():
-
-import os
-import streamlit as st
-from netCDF4 import Dataset
-
-def load_numpy_data():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     
     file_path = os.path.join(current_dir, 'nl_zm_ua10_day_ERA5_1950-2021.nc')
