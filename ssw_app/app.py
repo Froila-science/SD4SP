@@ -83,6 +83,7 @@ if run_detection:
             
             # Store as standard python datetimes in session state
             st.session_state['ssw_dates'] = [d.strftime('%Y-%m-%d') for d in raw_dates]
+            
 
 # --- RESULTS & PLOTTING ---
 if 'ssw_dates' in st.session_state:
@@ -94,7 +95,7 @@ if 'ssw_dates' in st.session_state:
         with col1:
             st.subheader("Event Selection")
             
-            map_options = ["Full Composite"] + [d.strftime('%Y-%m-%d') for d in dates]
+            map_options = ["Full Composite"] + dates
             
             selection = st.selectbox(
                 "Choose event to plot:",
