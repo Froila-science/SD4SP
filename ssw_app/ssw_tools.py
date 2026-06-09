@@ -532,77 +532,67 @@ def plt_prop_comp(tit, var, ndays, lev, year0, save=False):
         print(f'Figura guardada como: {fname}')
     
     return fig
-def plot_propagation(date_sel,composite=True):
-    
-    ''''
-    Plots the "dripping paint" similar to Baldwin and Dunkerton (Science-2001) but using the pcindex* 
-    (*Area-averaged polar geopotential height anomalies, standarized at each pressure level)
-    
-    Parameters
-    ----------
-    date_sel : datetime with SSWs dates
-            
-    year0 : int
-        First calendar year of the dataset (assumes data starts on Jan 1 of year0).
-    Returns
-    -------
-    fig : matplotlib.figure.Figure  
-    
-    '''
+def plot_propagation(date_sel, composite=True):
+    import pandas as pd
+    import numpy as np
+    import os
+    from netCDF4 import Dataset, date2num, num2date
+
     current_dir = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(current_dir, 'NAM_ERA5_std_new.nc')
     
-    root =Dataset(file_path)
-    year0=1950
-    iyear = year0-1959
-    if iyear < 0:
-        iyear = 0
-    dat     = np.squeeze(root.variables['nam'][(iyear*365)+122::])*(1)#data starts the 1st of sep 1959
-    lev     = root.variables['lev'][:]
+    root = Dataset(file_path)
+    year0 = 1950
+    iyear = 1959 - year0 
+    dat = np.squeeze(root.variables['nam'][(iyear*365)+122::]) 
+    lev = root.variables['lev'][:]
     nz = len(lev)
-    ## NOW let's do a composite
-    if len(date_sel) > 1:
-        mask = np.array([((f.year > 1960) & (f.year < 2022)) for f in date_sel])
-        date_sel = np.array(date_sel)
-        mask = np.array(mask).astype(bool)  # Forzamos a que sea booleano
-        dt_obj = pd.to_datetime(date_sel)
-        st1 = date2num(dt_obj,units ="days since 1950-01-01",calendar ='noleap') #SSWs arranged as nam data
-        st1 = st1[mask]
-        date_sel  = num2date(st1,units ="days since 1950-01-01",calendar ='noleap') #SSWs arranged as nam data
-        st1 = date2num(date_sel,units ="days since 1960-01-01",calendar ='noleap') #SSWs arranged as nam data
+
+    if composite:
+        dt_objs = pd.to_datetime(date_sel)
+        
+        mask = np.array([(d.year >= 1960 and d.year < 2022) for d in dt_objs])
+        
+        if not any(mask):
+            print("No events in 1960-2021")
+            return None
+            
+        st1 = date2num(dt_objs[mask], units="days since 1960-01-01", calendar='noleap')
+        tit = 'Composite'
     else:
-        yy1 = int(date_sel.split()[-1])
-        if yy1 <1960:
-            print('Not available data to plot, please select events after year 1960')
-            exit
-        else:
-            tit = date_sel
+        dt_obj = pd.to_datetime(date_sel)
+        yy1 = dt_obj.year
+        
+        if yy1 < 1960:
+            st.warning('Data not available before 1960')
+            return None
+        
+        st1 = date2num([dt_obj], units="days since 1960-01-01", calendar='noleap')
+        tit = dt_obj.strftime("%d %b %Y")
 
     iz10 = np.argmin(abs(lev-10))
     nt = dat.shape[0]
-    res = np.where(st1<nt-90)
-    st1 =st1[res]
+    
+    res = np.where(st1 < nt - 90)[0]
+    st1 = st1[res]
+    
     nst = len(st1)
-    comp = np.zeros((nst,180,nz))
+    if nst == 0:
+        return None
+
+    comp = np.zeros((nst, 180, nz))
 
     for c in range(nst):
         pos = int(st1[c])
-        res = np.where(dat[pos-10:pos+10,iz10] == np.nanmax(dat[pos-10:pos+10,iz10]))[0]
-        posn = int(res+pos-10)
-        comp[c,:,:] = dat[pos-90:pos+90,:] 
+        if pos-90 < 0 or pos+90 > nt:
+            continue
+            
+        comp[c,:,:] = dat[pos-90:pos+90, :]
 
-    comp = np.nanmean(comp,axis=0)
-    wintplot = comp
-    print(wintplot.shape)
-    if composite:
-        tit = 'Composite'
-    else:
-        if len(date_sel)>1:       
-            tit= date_sel[0].strftime("%d %b %Y")
-        else:
-            print('Not available data to plot, please select events after year 1960')
-    print(tit)
-    fig = plt_prop_comp(tit,wintplot,180,lev,year0,save=False)
+    wintplot = np.nanmean(comp, axis=0)
+    
+    fig = plt_prop_comp(tit, wintplot, 180, lev, year0, save=False)
+    root.close() 
     return fig
 def plt_stereo(tit, var, sig, lat, lon, clevs, colormap, colbar, un):
     """
